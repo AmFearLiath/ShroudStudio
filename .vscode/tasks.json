@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ShroudStudio: Build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}\\src\\ShroudStudio.App\\ShroudStudio.App.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "ShroudStudio: Test",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}\\ShroudStudio.slnx",
+                "--no-restore"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "test"
+        },
+        {
+            "label": "ShroudStudio: Start",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}\\src\\ShroudStudio.App\\ShroudStudio.App.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": "ShroudStudio: Build"
+        },
+        {
+            "label": "ShroudStudio: Publish win-x64",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "publish",
+                "${workspaceFolder}\\src\\ShroudStudio.App\\ShroudStudio.App.csproj",
+                "--configuration",
+                "Release",
+                "--runtime",
+                "win-x64",
+                "--self-contained",
+                "false"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

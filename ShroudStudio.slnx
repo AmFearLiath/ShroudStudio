@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ShroudStudio.App/ShroudStudio.App.csproj" />
+    <Project Path="src/ShroudStudio.Core/ShroudStudio.Core.csproj" />
+    <Project Path="src/ShroudStudio.Infrastructure/ShroudStudio.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ShroudStudio.Tests/ShroudStudio.Tests.csproj" />
+  </Folder>
+</Solution>

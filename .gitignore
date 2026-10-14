@@ -1,0 +1,24 @@
+# Build and IDE output
+**/bin/
+**/obj/
+.buildverify/
+.vs/
+.vscode/*.log
+
+# Local runtime and generated exports
+artifacts/
+data/workspaces/
+research/_tmp_*
+
+# Savegames and archives are personal data and must never be published
+data/savegames/
+*.sav
+*.new
+*.rar
+*.zip
+data/images/tools/
+
+# Local game/runtime configuration
+*.user
+*.suo
+eml.json

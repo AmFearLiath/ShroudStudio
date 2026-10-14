@@ -83,6 +83,8 @@ Diese Roadmap wird während der Entwicklung fortgeschrieben. Ein Punkt wird erst
 - [x] Inventargruppen im UI auswählbar machen und den Grid-Inhalt nach Auswahl neu aufbauen
 - [x] Interne Itembezeichner in der Spieleransicht lesbar aufbereiten und technische Katalogschlüssel ausblenden
 - [x] Skalarwerte und verschachtelte Felder verknüpfter Itemkomponenten im Instanzinspektor anzeigen
+- [x] Semantische Before-/After-Diffs für EHD0-Entities, Komponenten und Schemafelder implementieren
+- [x] Verlustbewusste JSON-Exporte für semantische Savegame-Diffs absichern
 - [ ] BDB1-Arrayknoten von `itemLastUsageOrders` und `itemFavoritesOrders` bis zu konkreten Iteminstanzen auflösen
 - [ ] Inventory-Kategorien semantisch als Rucksack, Aktionsleisten, Ausrüstung und Kisten klassifizieren
 - [ ] ItemState, Menge, Perks, Sockel und Ausrüstungskomponenten per Versionsvergleich validieren

@@ -265,6 +265,29 @@ sichtbar, auch wenn ein Feld semantisch noch nicht als Perk-, Gem- oder
 Haltbarkeitswert klassifiziert werden kann. Nicht numerische oder noch
 unbekannte Payloads werden weiterhin nicht als erfundene Spielerwerte
 ausgegeben.
+
+### Kontrollierte Before-/After-Analyse
+
+Für den nächsten Entschlüsselungsschritt besitzt ShroudStudio nun einen
+semantischen Diff-Service. Er vergleicht zwei bereits dekodierte EHD0-Archive
+nach Entitäts-ID und Komponentennamen. Änderungen werden bis auf einzelne
+Schemafelder und verschachtelte Arraypfade zurückgeführt und enthalten jeweils
+Vorherwert, Nachherwert, Änderungstyp und Evidenzstatus. Komponenten ohne
+bekanntes Schema werden trotzdem als hinzugefügt, entfernt oder geändert
+gemeldet; ihre unbekannten Bytes werden nicht verworfen.
+
+Der zugehörige JSON-Export darf nicht in einem Savegame-Verzeichnis liegen.
+Damit können kontrollierte Experimente dokumentiert werden, etwa:
+
+1. unveränderten Charakter sichern;
+2. genau ein Item verschieben, ausrüsten oder verändern;
+3. zweiten Stand sichern;
+4. semantischen Diff exportieren;
+5. nur Felder mit stabiler Änderung als neue Bedeutung klassifizieren.
+
+Der Diff ist ausdrücklich noch keine automatische Bedeutungsbehauptung. Er
+liefert die Evidenz, aus der Feldbedeutungen über mehrere unabhängige
+Vorher-/Nachher-Paare abgeleitet werden können.
 Die Oberfläche zeigt deshalb ausschließlich deren bestätigte Präsenz sowie
 die benannten `ItemState`-Felder Itemstufe und Basisschaden. Namen einzelner
 Perks, Edelsteine, Haltbarkeitswerte, Seltenheitscodes sowie die

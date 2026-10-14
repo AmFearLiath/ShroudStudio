@@ -89,6 +89,35 @@ public sealed class InventoryScannerTests
     }
 
     [Fact]
+    public void SemanticDiffAttributesComponentChangesToSchemaFields()
+    {
+        var schema = new ComponentSchemaFieldObservation(
+            "value", 0, 4, 0, EvidenceStatus.Observed);
+        var beforeComponent = new SavedEntityComponentObservation(
+            "Example", 7, 4, false, EvidenceStatus.Observed, [schema], [1, 0, 0, 0]);
+        var afterComponent = new SavedEntityComponentObservation(
+            "Example", 7, 4, false, EvidenceStatus.Observed, [schema], [2, 0, 0, 0]);
+        var before = new SavedEntityArchiveReport(
+            4,
+            [new SavedEntityObservation(42, 1, [beforeComponent], EvidenceStatus.Observed)],
+            ["Example"], [], EvidenceStatus.Observed);
+        var after = new SavedEntityArchiveReport(
+            4,
+            [new SavedEntityObservation(42, 1, [afterComponent], EvidenceStatus.Observed)],
+            ["Example"], [], EvidenceStatus.Observed);
+
+        var diff = new SavegameSemanticDiffService().Compare(before, after);
+
+        var component = Assert.Single(diff.Changes);
+        var field = Assert.Single(component.Fields);
+        Assert.Equal(42UL, component.EntityId);
+        Assert.Equal("value", field.FieldPath);
+        Assert.Equal(SavegameChangeKind.Changed, field.Kind);
+        Assert.Contains("0x01000000", field.BeforeValue);
+        Assert.Contains("0x02000000", field.AfterValue);
+    }
+
+    [Fact]
     public void Ksc1StructureAnalyzerReportsObservedHeaderAndMarkers()
     {
         var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;

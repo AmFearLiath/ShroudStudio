@@ -67,6 +67,16 @@ public sealed record InventorySlotDisplay(
     string? Category = null,
     ItemDefinition? Definition = null);
 
+public sealed record EquipmentSlotDisplay(
+    string SlotKey,
+    string SlotLabel,
+    InventorySlotDisplay? Item,
+    bool IsPrestige,
+    string Evidence)
+{
+    public string DisplayName => Item?.ItemName ?? "Leer";
+}
+
 public sealed record ItemDefinition(
     string Reference,
     long? NumericId,

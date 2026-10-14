@@ -26,6 +26,7 @@ public partial class MainWindow : Window
     private KnowledgePayloadReport? _worldKnowledge;
     private InventorySlotDisplay? _selectedInventorySlot;
     private bool _updatingContainerSelection;
+    private bool _showPrestigeEquipment;
 
     public MainWindow()
     {
@@ -290,9 +291,12 @@ public partial class MainWindow : Window
         ItemsListTitle.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         ItemsListBox.Visibility = page == "items" ? Visibility.Visible : Visibility.Collapsed;
         ItemSearchPanel.Visibility = page == "items" ? Visibility.Visible : Visibility.Collapsed;
-        InventoryWorkspacePanel.Visibility = page is "inventory" or "weapons"
+        InventoryWorkspacePanel.Visibility = page == "inventory"
             ? Visibility.Visible : Visibility.Collapsed;
-        ContainerSelectionPanel.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        EquipmentPanel.Visibility = page == "weapons"
+            ? Visibility.Visible : Visibility.Collapsed;
+        ContainerSelectionPanel.Visibility = page is "items" or "inventory"
+            ? Visibility.Visible : Visibility.Collapsed;
         ItemsListBox.Items.Clear();
         InventoryGrid.Items.Clear();
         ContainerComboBox.Items.Clear();
@@ -320,9 +324,12 @@ public partial class MainWindow : Window
                 character,
                 _itemCatalog);
         }
-        PopulateContainerSelection(page);
+        if (page is "inventory" or "items")
+            PopulateContainerSelection(page);
         if (page == "items")
             PopulateCatalogItems();
+        else if (page == "weapons")
+            PopulateEquipmentLayout();
 
         var resolvedCount = _itemReport.Candidates.Count(candidate =>
             candidate.ResolutionStatus is EvidenceStatus.Verified or EvidenceStatus.Observed);
@@ -496,6 +503,111 @@ public partial class MainWindow : Window
             return;
 
         PopulateInventoryGrid(_currentPage);
+    }
+
+    private void PopulateEquipmentLayout()
+    {
+        EquipmentLeftGrid.Items.Clear();
+        EquipmentRightGrid.Items.Clear();
+        if (_selectedCharacter is { CharacterName: { } characterName })
+            EquipmentCharacterName.Text = ToPlayerItemName(characterName);
+
+        IReadOnlyList<InventorySlotDisplay> candidates = _showPrestigeEquipment
+            ? []
+            : (_characterInventory?.Slots ?? [])
+                .Where(slot => slot.ItemReference != 0 && IsEquipmentCandidate(slot))
+                .Select(ToInventoryDisplay)
+                .ToArray();
+
+        var leftKeys = new[] { ("head", "Kopf"), ("chest", "Brust"), ("hands", "Handschuhe"), ("boots", "Stiefel") };
+        var rightKeys = new[] { ("main-hand", "Haupthand"), ("off-hand", "Nebenhand"), ("back", "Rücken"), ("ring", "Ring") };
+        foreach (var slot in leftKeys)
+            EquipmentLeftGrid.Items.Add(CreateEquipmentSlot(slot, candidates));
+        foreach (var slot in rightKeys)
+            EquipmentRightGrid.Items.Add(CreateEquipmentSlot(slot, candidates));
+
+        EquipmentInspectorHint.Text = _showPrestigeEquipment
+            ? "Prestige-Rüstung ist in den untersuchten CHAR-/EHD0-Daten noch nicht getrennt von der effektiven Ausrüstung bestätigt."
+            : "Effektive Ausrüstung aus den lokal aufgelösten Itemreferenzen. Die endgültige Zuordnung zu einem Equipment-Slot bleibt versionsabhängig, wenn das Savegame nur eine Inventory-Referenz liefert.";
+        ItemsListMessage.Text = _showPrestigeEquipment
+            ? "Prestige-Modus aktiv: Für diesen Charakter wurden noch keine unabhängig bestätigten Prestige-Referenzen gefunden."
+            : $"{candidates.Count} ausrüstungsnahe Iteminstanzen erkannt. Nicht belegte Slots bleiben sichtbar.";
+    }
+
+    private EquipmentSlotDisplay CreateEquipmentSlot(
+        (string Key, string Label) slot,
+        IReadOnlyList<InventorySlotDisplay> candidates)
+    {
+        var item = candidates.FirstOrDefault(candidate =>
+            string.Equals(ClassifyEquipmentSlot(candidate), slot.Key, StringComparison.Ordinal));
+        return new EquipmentSlotDisplay(
+            slot.Key,
+            slot.Label,
+            item,
+            _showPrestigeEquipment,
+            item is null ? "Nicht belegt oder nicht sicher zugeordnet." : item.Evidence ?? "Observed");
+    }
+
+    private static InventorySlotDisplay ToInventoryDisplay(CharacterInventorySlotObservation slot) =>
+        new(
+            slot.SlotIndex,
+            $"{slot.ContainerName} · {slot.SlotIndex + 1}",
+            ToPlayerItemName(slot.ItemName ?? "Belegt"),
+            FormatPlayerSlotDetails(slot, true),
+            true,
+            slot.Status.ToString(),
+            slot.Instance,
+            slot.Quantity,
+            slot.Category,
+            slot.Definition);
+
+    private static bool IsEquipmentCandidate(CharacterInventorySlotObservation slot)
+    {
+        var value = $"{slot.ItemName} {slot.Category} {slot.Definition?.EquipmentSlot}";
+        return value.Contains("Armor", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Weapon", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Shield", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Boots", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Chest", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Gloves", StringComparison.OrdinalIgnoreCase) ||
+               value.Contains("Helmet", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ClassifyEquipmentSlot(InventorySlotDisplay item)
+    {
+        var value = $"{item.ItemName} {item.Definition?.EquipmentSlot}";
+        if (value.Contains("Boot", StringComparison.OrdinalIgnoreCase))
+            return "boots";
+        if (value.Contains("Chest", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("Torso", StringComparison.OrdinalIgnoreCase))
+            return "chest";
+        if (value.Contains("Arm", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("Glove", StringComparison.OrdinalIgnoreCase))
+            return "hands";
+        if (value.Contains("Head", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("Helmet", StringComparison.OrdinalIgnoreCase))
+            return "head";
+        if (value.Contains("Shield", StringComparison.OrdinalIgnoreCase))
+            return "off-hand";
+        if (value.Contains("Weapon", StringComparison.OrdinalIgnoreCase))
+            return "main-hand";
+        return "ring";
+    }
+
+    private void PrestigeEquipmentToggleChanged(object sender, RoutedEventArgs e)
+    {
+        _showPrestigeEquipment = PrestigeEquipmentToggle.IsChecked == true;
+        if (_currentPage == "weapons")
+            PopulateEquipmentLayout();
+    }
+
+    private void EquipmentSlotClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: InventorySlotDisplay slot })
+            return;
+
+        _selectedInventorySlot = slot;
+        EquipmentInspectorHint.Text = FormatInspectorDetails(slot);
     }
 
     private static string? FormatItemDetails(ItemDefinition? definition)

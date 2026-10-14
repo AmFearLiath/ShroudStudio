@@ -308,6 +308,25 @@ Damit ist der vom Benutzer beschriebene Wechsel als **Tausch zweier
 Inventar-/Ausrüstungsreferenzen** nachgewiesen. Die internen Namen passen zu
 den beschriebenen Stiefeln; offizielle lokalisierte Anzeigenamen sind wegen
 der weiterhin leeren lokalen Lokalisierungsmap noch nicht beweisbar.
+
+### Ausrüstung und Lokalisierung
+
+Die beiden neuen Bootsdefinitionen sind im lokalen `item_index.json` mit
+GUID und numerischer ID vorhanden. Die Weapon-/Item-Exporte liefern für diese
+Armor-Einträge jedoch keine befüllten `name_text`- oder
+`description_text`-Felder. Der laufende Lokalisierungsexport erkennt zwar
+zwölf mögliche Ressourcenklassen, findet darin aber null GUID-zu-Text-Paare.
+ShroudStudio ergänzt deshalb nur nachweisbare Metadaten aus den internen
+Descriptors, etwa Kategorie `Rüstung` und Equipmentplatz `Stiefel`; offizielle
+Texte werden nicht aus internen Namen erfunden.
+
+Die Oberfläche besitzt nun eine spielähnliche Ausrüstungsanordnung mit
+Kopf-, Brust-, Handschuh-, Stiefel-, Haupt- und Nebenhand-, Rücken- und
+Ringplatz. Ein Toggle trennt die Darstellung der effektiv erkannten
+Ausrüstung vom Prestige-Modus. Für den Prestige-Modus werden derzeit bewusst
+keine effektiven Items dupliziert: In den untersuchten Daten ist noch keine
+separate Prestige-Referenz bestätigt. Die mittlere Charakterfläche ist als
+Liveansicht vorbereitet, enthält aber noch kein gerendertes 3D-Modell.
 Die Oberfläche zeigt deshalb ausschließlich deren bestätigte Präsenz sowie
 die benannten `ItemState`-Felder Itemstufe und Basisschaden. Namen einzelner
 Perks, Edelsteine, Haltbarkeitswerte, Seltenheitscodes sowie die

@@ -289,6 +289,9 @@ public sealed class ItemCatalogService
                 .Select(key => localizations.GetValueOrDefault(key))
                 .FirstOrDefault(IsUsableName);
             var name = localizedName ?? internalName;
+            category ??= InferCategory(name);
+            rarity ??= InferRarity(name);
+            equipmentSlot ??= InferEquipmentSlot(name);
             if (!string.IsNullOrWhiteSpace(reference) && !string.IsNullOrWhiteSpace(name) &&
                 (numericId is not null || Numeric.IsMatch(reference)))
                 output.Add(new(reference, numericId, name.Trim(), path, EvidenceStatus.Verified,
@@ -348,4 +351,59 @@ public sealed class ItemCatalogService
     }
 
     private static string Normalize(string value) => value.Trim().Trim('"');
+
+    private static string? InferCategory(string? name)
+    {
+        if (name is null)
+            return null;
+        if (name.StartsWith("Armor_", StringComparison.OrdinalIgnoreCase))
+            return "Rüstung";
+        if (name.StartsWith("Weapon_", StringComparison.OrdinalIgnoreCase))
+            return "Waffe";
+        if (name.StartsWith("Food_", StringComparison.OrdinalIgnoreCase))
+            return "Nahrung";
+        if (name.StartsWith("Potion_", StringComparison.OrdinalIgnoreCase))
+            return "Trank";
+        if (name.StartsWith("Ammo_", StringComparison.OrdinalIgnoreCase))
+            return "Munition";
+        return null;
+    }
+
+    private static string? InferRarity(string? name)
+    {
+        if (name is null)
+            return null;
+        foreach (var rarity in new[] { "Legendary", "Epic", "Rare", "Uncommon", "Common" })
+        {
+            if (name.Contains(rarity, StringComparison.OrdinalIgnoreCase))
+                return rarity;
+        }
+
+        return null;
+    }
+
+    private static string? InferEquipmentSlot(string? name)
+    {
+        if (name is null)
+            return null;
+        if (name.Contains("Boots", StringComparison.OrdinalIgnoreCase))
+            return "Stiefel";
+        if (name.Contains("Chest", StringComparison.OrdinalIgnoreCase))
+            return "Brust";
+        if (name.Contains("Arms", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Gloves", StringComparison.OrdinalIgnoreCase))
+            return "Handschuhe";
+        if (name.Contains("Head", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Helmet", StringComparison.OrdinalIgnoreCase))
+            return "Kopf";
+        if (name.Contains("Shield", StringComparison.OrdinalIgnoreCase))
+            return "Nebenhand";
+        if (name.Contains("Bow", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Staff", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Wand", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Sword", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("Axe", StringComparison.OrdinalIgnoreCase))
+            return "Haupthand";
+        return null;
+    }
 }

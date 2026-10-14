@@ -460,6 +460,20 @@ public sealed class InventoryScannerTests
     }
 
     [Fact]
+    public void ItemCatalogInfersArmorSlotFromValidatedInternalDescriptor()
+    {
+        var directory = Directory.CreateDirectory(Path.Combine(
+            Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;
+        File.WriteAllText(Path.Combine(directory, "items.json"),
+            """{"items":[{"id":12345,"debug_name":"Armor_T5_Mage_Healer_Boots"}]}""");
+
+        var definition = Assert.Single(new ItemCatalogService().Discover(directory).Definitions);
+
+        Assert.Equal("Rüstung", definition.Category);
+        Assert.Equal("Stiefel", definition.EquipmentSlot);
+    }
+
+    [Fact]
     public void ItemCatalogReadsValidatedXmlDescriptorNames()
     {
         var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;

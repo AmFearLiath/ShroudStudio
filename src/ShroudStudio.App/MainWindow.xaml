@@ -129,6 +129,31 @@
             <Setter Property="Background" Value="#243A3D"/>
             <Setter Property="BorderBrush" Value="#3B5B5A"/>
         </Style>
+        <Style x:Key="DarkToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="#DDF8F1"/>
+            <Setter Property="Background" Value="#243A3D"/>
+            <Setter Property="BorderBrush" Value="#3B5B5A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#1C6C6B"/>
+                    <Setter Property="BorderBrush" Value="#73D2C0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="InventoryTileButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -557,6 +582,111 @@
                                             <TextBlock Margin="0,18,0,0"
                                                        Text="Die Ansicht verändert keine Savegames."
                                                        Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <Grid Name="EquipmentPanel" Margin="0,0,0,8" Visibility="Collapsed">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2.2*"/>
+                                        <ColumnDefinition Width="0.8*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Padding="16" Margin="0,0,12,0"
+                                            Background="#0B181A" BorderBrush="#315E5B" BorderThickness="1"
+                                            CornerRadius="8">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Effektive Ausrüstung" FontSize="15"
+                                                           FontWeight="SemiBold"/>
+                                                <ToggleButton Name="PrestigeEquipmentToggle" Margin="18,0,0,0"
+                                                              Content="Prestige anzeigen"
+                                                              Style="{StaticResource DarkToggleButtonStyle}"
+                                                              Checked="PrestigeEquipmentToggleChanged"
+                                                              Unchecked="PrestigeEquipmentToggleChanged"/>
+                                            </StackPanel>
+                                            <Grid Grid.Row="1" Margin="0,18,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="1.1*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <ItemsControl Name="EquipmentLeftGrid">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Tag="{Binding Item}" Click="EquipmentSlotClick"
+                                                                        Margin="4" Padding="10" MinHeight="70"
+                                                                        Background="#14292C" BorderBrush="#315E5B"
+                                                                        BorderThickness="1" Foreground="#DDF8F1">
+                                                                    <StackPanel>
+                                                                        <TextBlock Text="{Binding SlotLabel}"
+                                                                                   Foreground="{StaticResource MutedBrush}"
+                                                                                   FontSize="11"/>
+                                                                        <TextBlock Margin="0,6,0,0"
+                                                                                   Text="{Binding DisplayName}"
+                                                                                   Foreground="{StaticResource TealBrush}"
+                                                                                   TextWrapping="Wrap"/>
+                                                                    </StackPanel>
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                                <Border Grid.Column="1" Margin="12,4" CornerRadius="70"
+                                                        Background="#102326" BorderBrush="#315E5B"
+                                                        BorderThickness="1" MinHeight="260">
+                                                    <StackPanel VerticalAlignment="Center"
+                                                                HorizontalAlignment="Center">
+                                                        <TextBlock Text="CHARAKTER" Foreground="{StaticResource MutedBrush}"
+                                                                   HorizontalAlignment="Center" FontSize="11"/>
+                                                        <TextBlock Name="EquipmentCharacterName" Margin="0,8,0,0"
+                                                                   Text="Liath" Foreground="{StaticResource TealBrush}"
+                                                                   FontSize="22" FontWeight="SemiBold"
+                                                                   HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="Liveansicht vorbereitet"
+                                                                   Margin="0,6,0,0" Foreground="{StaticResource MutedBrush}"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <ItemsControl Name="EquipmentRightGrid">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Tag="{Binding Item}" Click="EquipmentSlotClick"
+                                                                        Margin="4" Padding="10" MinHeight="70"
+                                                                        Background="#14292C" BorderBrush="#315E5B"
+                                                                        BorderThickness="1" Foreground="#DDF8F1">
+                                                                    <StackPanel>
+                                                                        <TextBlock Text="{Binding SlotLabel}"
+                                                                                   Foreground="{StaticResource MutedBrush}"
+                                                                                   FontSize="11"/>
+                                                                        <TextBlock Margin="0,6,0,0"
+                                                                                   Text="{Binding DisplayName}"
+                                                                                   Foreground="{StaticResource TealBrush}"
+                                                                                   TextWrapping="Wrap"/>
+                                                                    </StackPanel>
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                    <Border Grid.Column="1" Padding="16" Background="#102326"
+                                            BorderBrush="#315E5B" BorderThickness="1" CornerRadius="8">
+                                        <StackPanel>
+                                            <TextBlock Text="Ausrüstungsinspektor" FontSize="16"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Name="EquipmentInspectorHint" Margin="0,18,0,0"
+                                                       Foreground="{StaticResource MutedBrush}"
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="Wähle einen Slot für die vollständige Itemansicht."
+                                                       Margin="0,12,0,0" Foreground="#C1EAE2"
+                                                       TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </Grid>

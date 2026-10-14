@@ -86,6 +86,8 @@ Diese Roadmap wird während der Entwicklung fortgeschrieben. Ein Punkt wird erst
 - [x] Semantische Before-/After-Diffs für EHD0-Entities, Komponenten und Schemafelder implementieren
 - [x] Verlustbewusste JSON-Exporte für semantische Savegame-Diffs absichern
 - [x] Kontrollvergleich `characters-8`/`characters-9` mit logischer Inventarslot-Auflösung durchführen
+- [x] Spielähnliches Ausrüstungs-Slotlayout mit effektivem/Prestige-Toggle vorbereiten
+- [x] Lokale Armor-Descriptors um nachweisbare Kategorie- und Equipmentplatz-Metadaten ergänzen
 - [ ] BDB1-Arrayknoten von `itemLastUsageOrders` und `itemFavoritesOrders` bis zu konkreten Iteminstanzen auflösen
 - [ ] Inventory-Kategorien semantisch als Rucksack, Aktionsleisten, Ausrüstung und Kisten klassifizieren
 - [ ] ItemState, Menge, Perks, Sockel und Ausrüstungskomponenten per Versionsvergleich validieren

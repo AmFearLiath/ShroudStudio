@@ -85,6 +85,7 @@ Diese Roadmap wird während der Entwicklung fortgeschrieben. Ein Punkt wird erst
 - [x] Skalarwerte und verschachtelte Felder verknüpfter Itemkomponenten im Instanzinspektor anzeigen
 - [x] Semantische Before-/After-Diffs für EHD0-Entities, Komponenten und Schemafelder implementieren
 - [x] Verlustbewusste JSON-Exporte für semantische Savegame-Diffs absichern
+- [x] Kontrollvergleich `characters-8`/`characters-9` mit logischer Inventarslot-Auflösung durchführen
 - [ ] BDB1-Arrayknoten von `itemLastUsageOrders` und `itemFavoritesOrders` bis zu konkreten Iteminstanzen auflösen
 - [ ] Inventory-Kategorien semantisch als Rucksack, Aktionsleisten, Ausrüstung und Kisten klassifizieren
 - [ ] ItemState, Menge, Perks, Sockel und Ausrüstungskomponenten per Versionsvergleich validieren

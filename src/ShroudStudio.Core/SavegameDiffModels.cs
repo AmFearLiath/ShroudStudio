@@ -45,3 +45,24 @@ public sealed record SavegameSemanticDiff(
     public int ChangedEntityCount => Changes.Select(change => change.EntityId).Distinct().Count();
     public int ChangedFieldCount => Changes.Sum(change => change.Fields.Count);
 }
+
+public sealed record InventorySlotChange(
+    string ContainerName,
+    int SlotIndex,
+    uint BeforeItemReference,
+    uint AfterItemReference,
+    string? BeforeItemName,
+    string? AfterItemName,
+    uint? BeforeQuantity,
+    uint? AfterQuantity,
+    EvidenceStatus Status);
+
+public sealed record InventorySemanticDiff(
+    IReadOnlyList<InventorySlotChange> Changes,
+    EvidenceStatus Status)
+{
+    public bool IsSwap =>
+        Changes.Count == 2 &&
+        Changes[0].BeforeItemReference == Changes[1].AfterItemReference &&
+        Changes[1].BeforeItemReference == Changes[0].AfterItemReference;
+}

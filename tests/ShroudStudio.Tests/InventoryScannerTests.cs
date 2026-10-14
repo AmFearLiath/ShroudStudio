@@ -118,6 +118,93 @@ public sealed class InventoryScannerTests
     }
 
     [Fact]
+    public void NewCharacterBackupsCanBeComparedSemantically()
+    {
+        var workspace = FindWorkspaceRoot();
+        var source = Path.Combine(workspace, "data", "savegames");
+        var beforeSource = Path.Combine(source, "characters-8");
+        var afterSource = Path.Combine(source, "characters-9");
+        if (!File.Exists(beforeSource) || !File.Exists(afterSource))
+            return;
+
+        var directory = Directory.CreateDirectory(Path.Combine(
+            Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;
+        var beforeDirectory = Directory.CreateDirectory(Path.Combine(directory, "before")).FullName;
+        var afterDirectory = Directory.CreateDirectory(Path.Combine(directory, "after")).FullName;
+        try
+        {
+            File.Copy(beforeSource, Path.Combine(beforeDirectory, "characters"));
+            File.Copy(afterSource, Path.Combine(afterDirectory, "characters"));
+            File.WriteAllText(Path.Combine(beforeDirectory, "characters-index"), "{\"latest\":0}");
+            File.WriteAllText(Path.Combine(afterDirectory, "characters-index"), "{\"latest\":0}");
+
+            var payloadService = new CharacterPayloadService();
+            var beforeCharacter = Assert.Single(
+                payloadService.ListOptions(beforeDirectory), character => character.HasInventoryData);
+            var afterCharacter = Assert.Single(
+                payloadService.ListOptions(afterDirectory), character => character.HasInventoryData);
+            Assert.Equal(beforeCharacter.CharacterName, afterCharacter.CharacterName);
+            var diff = new SavegameSemanticDiffService().Compare(
+                beforeDirectory, beforeCharacter, afterDirectory, afterCharacter);
+            var catalog = new ItemCatalogService().Discover(
+                @"D:\SteamLibrary\steamapps\common\Enshrouded");
+            var inventoryDiff = new InventorySemanticDiffService().Compare(
+                beforeDirectory, beforeCharacter, afterDirectory, afterCharacter, catalog);
+            var beforeInventory = new CharacterInventoryService().Analyze(
+                beforeDirectory, beforeCharacter, catalog);
+            var afterInventory = new CharacterInventoryService().Analyze(
+                afterDirectory, afterCharacter, catalog);
+
+            Console.WriteLine(
+                $"characters-8 -> characters-9: {diff.ChangedEntityCount} Entities, " +
+                $"{diff.ChangedFieldCount} Felder, Status {diff.Status}");
+            Console.WriteLine(
+                $"Inventaränderungen: {inventoryDiff.Changes.Count}, " +
+                $"Tausch erkannt: {inventoryDiff.IsSwap}");
+            var beforeSlots = beforeInventory.Slots.ToDictionary(
+                slot => $"{slot.ContainerName}:{slot.SlotIndex}");
+            var afterSlots = afterInventory.Slots.ToDictionary(
+                slot => $"{slot.ContainerName}:{slot.SlotIndex}");
+            foreach (var key in beforeSlots.Keys.Concat(afterSlots.Keys).Distinct().OrderBy(key => key))
+            {
+                beforeSlots.TryGetValue(key, out var beforeSlot);
+                afterSlots.TryGetValue(key, out var afterSlot);
+                if (beforeSlot?.ItemReference == afterSlot?.ItemReference &&
+                    beforeSlot?.Quantity == afterSlot?.Quantity)
+                    continue;
+
+                Console.WriteLine(
+                    $"Slot {key}: " +
+                    $"{beforeSlot?.ItemName ?? "leer"} ({beforeSlot?.ItemReference}) x{beforeSlot?.Quantity} -> " +
+                    $"{afterSlot?.ItemName ?? "leer"} ({afterSlot?.ItemReference}) x{afterSlot?.Quantity}");
+            }
+            foreach (var change in diff.Changes.Where(change =>
+                         change.Component.Contains("Inventory", StringComparison.OrdinalIgnoreCase) ||
+                         change.Component.Contains("Item", StringComparison.OrdinalIgnoreCase) ||
+                         change.Component.Contains("Equip", StringComparison.OrdinalIgnoreCase) ||
+                         change.Component.Contains("Perk", StringComparison.OrdinalIgnoreCase) ||
+                         change.Component.Contains("Durability", StringComparison.OrdinalIgnoreCase) ||
+                         change.Component.Contains("Gem", StringComparison.OrdinalIgnoreCase)))
+            {
+                Console.WriteLine(
+                    $"Entity {change.EntityId} {change.Component} {change.Kind}: " +
+                    string.Join(", ", change.Fields.Select(field =>
+                        $"{field.FieldPath}={field.BeforeValue}->{field.AfterValue}")));
+            }
+
+            Assert.Equal(EvidenceStatus.Observed, diff.Status);
+            Assert.NotEmpty(diff.Changes);
+            Assert.Equal(EvidenceStatus.Observed, inventoryDiff.Status);
+            Assert.Equal(2, inventoryDiff.Changes.Count);
+            Assert.True(inventoryDiff.IsSwap);
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [Fact]
     public void Ksc1StructureAnalyzerReportsObservedHeaderAndMarkers()
     {
         var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;

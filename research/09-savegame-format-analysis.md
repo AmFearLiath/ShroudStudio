@@ -288,6 +288,26 @@ Damit können kontrollierte Experimente dokumentiert werden, etwa:
 Der Diff ist ausdrücklich noch keine automatische Bedeutungsbehauptung. Er
 liefert die Evidenz, aus der Feldbedeutungen über mehrere unabhängige
 Vorher-/Nachher-Paare abgeleitet werden können.
+
+### Kontrollvergleich `characters-8` / `characters-9`
+
+Die bereitgestellten Stände wurden als derselbe spielbare Charakter
+(`Liath`, Stufe 45) erkannt. Ein Vergleich ausschließlich über EHD0-
+Entity-IDs ist dabei irreführend, weil das Spiel beim Speichern große Teile
+der Entitäts-IDs neu vergeben kann. Der zusätzliche Inventar-Diff vergleicht
+deshalb die stabile logische Adresse aus Containername und Slotindex.
+
+Für diesen Vergleich wurden genau zwei Änderungen erkannt:
+
+| Container | Slot | Vorher | Nachher | Menge |
+|---|---:|---|---|---:|
+| Inventargruppe 1 | 39 | `Armor_T1_Ranger_Boots_Ministory_12` (3888365414) | `Armor_T5_Mage_Healer_Boots` (2100904811) | 1 → 1 |
+| Inventargruppe 1 | 60 | `Armor_T5_Mage_Healer_Boots` (2100904811) | `Armor_T1_Ranger_Boots_Ministory_12` (3888365414) | 1 → 1 |
+
+Damit ist der vom Benutzer beschriebene Wechsel als **Tausch zweier
+Inventar-/Ausrüstungsreferenzen** nachgewiesen. Die internen Namen passen zu
+den beschriebenen Stiefeln; offizielle lokalisierte Anzeigenamen sind wegen
+der weiterhin leeren lokalen Lokalisierungsmap noch nicht beweisbar.
 Die Oberfläche zeigt deshalb ausschließlich deren bestätigte Präsenz sowie
 die benannten `ItemState`-Felder Itemstufe und Basisschaden. Namen einzelner
 Perks, Edelsteine, Haltbarkeitswerte, Seltenheitscodes sowie die
